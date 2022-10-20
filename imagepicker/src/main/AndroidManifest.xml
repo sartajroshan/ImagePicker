@@ -33,6 +33,10 @@
             android:screenOrientation="unspecified"
             android:theme="@style/Theme.Transparent.ImagePicker" />
 
+        <activity android:name=".ImagePickerFinalActivity"
+            android:theme="@style/GalleryBaseTheme"
+            />
+
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"

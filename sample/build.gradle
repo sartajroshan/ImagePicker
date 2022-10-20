@@ -33,7 +33,7 @@ android {
     defaultConfig {
         signingConfig signingConfigs.debug
         applicationId "com.github.drjacky.imagepicker.sample"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 33
         multiDexEnabled true
         versionCode rootProject.ext.versionCode

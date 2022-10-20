@@ -219,7 +219,7 @@ object FileUtil {
         val withoutDotExtension = extension.replace(".", "")
         return safeValueOf<Bitmap.CompressFormat>(
             name = withoutDotExtension.uppercase(),
-            defaultValue = Bitmap.CompressFormat.JPEG
+            defaultValue = Bitmap.CompressFormat.PNG
         )
     }
 

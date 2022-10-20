@@ -12,8 +12,8 @@ import android.os.Bundle
 import android.os.Environment
 import androidx.activity.result.ActivityResult
 import androidx.annotation.Nullable
+import androidx.appcompat.app.AppCompatActivity
 import com.github.drjacky.imagepicker.ImagePicker
-import com.github.drjacky.imagepicker.ImagePickerActivity
 import com.github.drjacky.imagepicker.R
 import com.github.drjacky.imagepicker.util.FileUriUtils
 import com.github.drjacky.imagepicker.util.FileUtil.getCompressFormat
@@ -30,15 +30,18 @@ import java.io.IOException
  * @version 1.0
  * @since 04 January 2019
  */
-class CropProvider(activity: ImagePickerActivity, private val launcher: (Intent) -> Unit) :
-    BaseProvider(activity) {
+class CropProvider(
+    activity: AppCompatActivity, private val setCropImage: (Uri) -> Unit,
+    private val launcher: (Intent) -> Unit
+) :
+    BaseProvider<AppCompatActivity>(activity) {
 
     companion object {
         private val TAG = CropProvider::class.java.simpleName
         private const val STATE_CROP_URI = "state.crop_uri"
     }
 
-    private var isMultipleFiles: Boolean = false
+    //private var isMultipleFiles: Boolean = false
     private val maxWidth: Int
     private val maxHeight: Int
 
@@ -121,10 +124,9 @@ class CropProvider(activity: ImagePickerActivity, private val launcher: (Intent)
         cropOval: Boolean,
         cropFreeStyle: Boolean,
         isCamera: Boolean,
-        isMultipleFiles: Boolean,
         outputFormat: Bitmap.CompressFormat?
     ) {
-        this.isMultipleFiles = isMultipleFiles
+        // this.isMultipleFiles = isMultipleFiles
         cropImage(
             uri = uri,
             cropOval = cropOval,
@@ -199,11 +201,12 @@ class CropProvider(activity: ImagePickerActivity, private val launcher: (Intent)
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = UCrop.getOutput(result.data!!)
             if (uri != null) {
-                if (isMultipleFiles) {
-                    activity.setMultipleCropImage(uri)
-                } else {
-                    activity.setCropImage(uri)
-                }
+//                if (isMultipleFiles) {
+//                    activity.setMultipleCropImage(uri)
+//                } else {
+//                    setCropImage(uri)
+//                }
+                setCropImage(uri)
             } else {
                 setError(R.string.error_failed_to_crop_image)
             }

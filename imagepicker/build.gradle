@@ -7,7 +7,7 @@ android {
     compileSdkVersion 33
     defaultConfig {
         multiDexEnabled true
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -34,6 +34,9 @@ android {
     lintOptions{
         disable 'MissingTranslation'
     }
+    buildFeatures {
+        viewBinding = true
+    }
 
 }
 
@@ -50,6 +53,9 @@ dependencies {
 
     //More Info: https://github.com/Yalantis/uCrop
     implementation 'com.github.yalantis:ucrop:2.2.8'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation("io.coil-kt:coil:2.2.2")
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

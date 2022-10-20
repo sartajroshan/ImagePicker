@@ -8,11 +8,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.github.drjacky.imagepicker.ImagePicker.Companion.EXTRA_IMAGES
 import com.github.drjacky.imagepicker.constant.ImageProvider
 import com.github.drjacky.imagepicker.provider.CameraProvider
 import com.github.drjacky.imagepicker.provider.CompressionProvider
 import com.github.drjacky.imagepicker.provider.CropProvider
 import com.github.drjacky.imagepicker.provider.GalleryProvider
+import com.github.drjacky.imagepicker.util.setError
+import com.github.drjacky.imagepicker.util.setResultCancel
 import java.io.File
 import java.io.IOException
 
@@ -62,6 +65,12 @@ class ImagePickerActivity : AppCompatActivity() {
             mCropProvider.handleResult(it)
         }
 
+    private val finalLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            setResult(it.resultCode, it.data)
+            finish()
+        }
+
     /** Uri provided by GalleryProvider or CameraProvider */
     private var mImageUri: Uri? = null
 
@@ -98,11 +107,11 @@ class ImagePickerActivity : AppCompatActivity() {
      */
     private fun loadBundle(savedInstanceState: Bundle?) {
         // Create Crop Provider
-        mCropProvider = CropProvider(this) { cropLauncher.launch(it) }
+        mCropProvider = CropProvider(this, ::setCropImage) { cropLauncher.launch(it) }
         mCropProvider.onRestoreInstanceState(savedInstanceState)
 
         // Create Compression Provider
-        mCompressionProvider = CompressionProvider(this)
+        mCompressionProvider = CompressionProvider(this, ::setCompressedImage)
         mCroppedImageList = ArrayList()
         // Retrieve Image Provider
 
@@ -160,16 +169,26 @@ class ImagePickerActivity : AppCompatActivity() {
      */
     @Throws(IOException::class)
     fun setImage(uri: Uri, isCamera: Boolean) {
+
         mImageUri = uri
         when {
-            mCropProvider.isCropEnabled() -> mCropProvider.startIntent(
-                uri = uri,
-                cropOval = mCropProvider.isCropOvalEnabled(),
-                cropFreeStyle = mCropProvider.isCropFreeStyleEnabled(),
-                isCamera = isCamera,
-                isMultipleFiles = false,
-                outputFormat = mCropProvider.outputFormat()
-            )
+            mCropProvider.isCropEnabled() -> {
+                val finalIntent = Intent(this, ImagePickerFinalActivity::class.java)
+                val data = Bundle(intent.extras).apply {
+                    putBoolean("isCamera", isCamera)
+                    putParcelableArrayList(EXTRA_IMAGES, arrayListOf(uri))
+                }
+                finalIntent.putExtras(data)
+                finalLauncher.launch(finalIntent)
+//                mCropProvider.startIntent(
+//                    uri = uri,
+//                    cropOval = mCropProvider.isCropOvalEnabled(),
+//                    cropFreeStyle = mCropProvider.isCropFreeStyleEnabled(),
+//                    isCamera = isCamera,
+//                    isMultipleFiles = false,
+//                    outputFormat = mCropProvider.outputFormat()
+//                )
+            }
             mCompressionProvider.isResizeRequired(uri) -> mCompressionProvider.compress(
                 uri = uri,
                 outputFormat = mCropProvider.outputFormat()
@@ -195,14 +214,23 @@ class ImagePickerActivity : AppCompatActivity() {
     private fun setMultipleCropper(uri: Uri) {
         mImageUri = uri
         when {
-            mCropProvider.isCropEnabled() -> mCropProvider.startIntent(
-                uri = uri,
-                cropOval = mCropProvider.isCropOvalEnabled(),
-                cropFreeStyle = mCropProvider.isCropFreeStyleEnabled(),
-                isCamera = false,
-                isMultipleFiles = true,
-                outputFormat = mCropProvider.outputFormat()
-            )
+            mCropProvider.isCropEnabled() -> {
+                val finalIntent = Intent(this, ImagePickerFinalActivity::class.java)
+                val data = Bundle(intent.extras).apply {
+                    putBoolean("isCamera", false)
+                    putParcelableArrayList(EXTRA_IMAGES, fileToCrop)
+                }
+                finalIntent.putExtras(data)
+                finalLauncher.launch(finalIntent)
+//                mCropProvider.startIntent(
+//                    uri = uri,
+//                    cropOval = mCropProvider.isCropOvalEnabled(),
+//                    cropFreeStyle = mCropProvider.isCropFreeStyleEnabled(),
+//                    isCamera = false,
+//                    isMultipleFiles = true,
+//                    outputFormat = mCropProvider.outputFormat()
+//                )
+            }
             mCompressionProvider.isResizeRequired(uri) -> mCompressionProvider.compress(
                 uri = uri,
                 outputFormat = mCropProvider.outputFormat()
@@ -217,7 +245,7 @@ class ImagePickerActivity : AppCompatActivity() {
      *
      * @param uri Crop image file
      */
-    fun setCropImage(uri: Uri) {
+    private fun setCropImage(uri: Uri) {
         mCropUri = uri
 
         mCameraProvider?.let {
@@ -251,7 +279,7 @@ class ImagePickerActivity : AppCompatActivity() {
      *
      * @param file Compressed image file
      */
-    fun setCompressedImage(file: File) {
+    private fun setCompressedImage(file: File) {
         // This is the case when Crop is not enabled
         mCameraProvider?.let {
             // Delete Camera file after Compress. Else there will be two image for the same action.
@@ -289,24 +317,5 @@ class ImagePickerActivity : AppCompatActivity() {
         finish()
     }
 
-    /**
-     * User has cancelled the task
-     */
-    fun setResultCancel() {
-        setResult(Activity.RESULT_CANCELED, getCancelledIntent(this))
-        finish()
-    }
-
-    /**
-     * Error occurred while processing image
-     *
-     * @param message Error Message
-     */
-    fun setError(message: String) {
-        val intent = Intent()
-        intent.putExtra(ImagePicker.EXTRA_ERROR, message)
-        setResult(ImagePicker.RESULT_ERROR, intent)
-        finish()
-    }
 
 }

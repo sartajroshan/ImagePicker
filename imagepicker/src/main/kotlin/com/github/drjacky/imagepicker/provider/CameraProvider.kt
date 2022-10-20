@@ -28,7 +28,7 @@ class CameraProvider(
     private val tryFrontCamera: Boolean = false,
     private val launcher: (Intent) -> Unit
 ) :
-    BaseProvider(activity) {
+    BaseProvider<ImagePickerActivity>(activity) {
 
     companion object {
         /**

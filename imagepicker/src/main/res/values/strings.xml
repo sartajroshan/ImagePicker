@@ -34,4 +34,7 @@
     <string name="ucrop_crop">Crop</string>
     <!-- uCrop string resource end -->
 
+    <string name="action_done">DONE</string>
+
+
 </resources>

@@ -1,9 +1,13 @@
 package com.github.drjacky.imagepicker.provider
 
+import android.app.Activity
 import android.content.ContextWrapper
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.github.drjacky.imagepicker.ImagePickerActivity
+import com.github.drjacky.imagepicker.util.setError
+import com.github.drjacky.imagepicker.util.setResultCancel
 
 /**
  * Abstract Provider class
@@ -12,7 +16,7 @@ import com.github.drjacky.imagepicker.ImagePickerActivity
  * @version 1.0
  * @since 04 January 2019
  */
-abstract class BaseProvider(protected val activity: ImagePickerActivity) :
+abstract class BaseProvider<T : Activity>(protected val activity: T) :
     ContextWrapper(activity) {
 
     /**

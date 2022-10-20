@@ -27,7 +27,7 @@ class GalleryProvider(
     activity: ImagePickerActivity,
     private val launcher: (Intent) -> Unit
 ) :
-    BaseProvider(activity) {
+    BaseProvider<ImagePickerActivity>(activity) {
 
     private var fileList: ArrayList<Uri>? = null
 

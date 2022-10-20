@@ -1,13 +1,14 @@
 package com.github.drjacky.imagepicker.provider
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.drjacky.imagepicker.ImagePicker
-import com.github.drjacky.imagepicker.ImagePickerActivity
 import com.github.drjacky.imagepicker.util.ExifDataCopier
 import com.github.drjacky.imagepicker.util.FileUriUtils
 import kotlinx.coroutines.launch
@@ -21,7 +22,11 @@ import java.io.FileOutputStream
  * @version 1.0
  * @since 04 January 2019
  */
-class CompressionProvider(activity: ImagePickerActivity) : BaseProvider(activity) {
+class CompressionProvider(
+    activity: AppCompatActivity,
+    private val setCompressedImage: (File) -> Unit
+) :
+    BaseProvider<AppCompatActivity>(activity) {
 
     private val maxWidth: Int
     private val maxHeight: Int
@@ -58,7 +63,7 @@ class CompressionProvider(activity: ImagePickerActivity) : BaseProvider(activity
             val res = compressTask(uri, outputFormat)
             if (res != null) {
                 ExifDataCopier.copyExif(uri, res)
-                activity.setCompressedImage(res)
+                setCompressedImage(res)
             } else {
                 setError(com.github.drjacky.imagepicker.R.string.error_failed_to_compress_image)
             }
