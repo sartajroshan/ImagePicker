@@ -6,7 +6,7 @@ apply from: "../ktlint.gradle"
 android {
     compileSdkVersion 33
     defaultConfig {
-        multiDexEnabled true
+       // multiDexEnabled true
         minSdkVersion 21
         targetSdkVersion 33
 

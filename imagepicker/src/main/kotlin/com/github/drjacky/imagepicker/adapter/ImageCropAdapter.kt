@@ -14,6 +14,9 @@ class ImageCropAdapter(
     val images: ArrayList<Uri>,
     private val listener: CropListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var isLoading = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = ImagepickerLayoutRecyclerviewItemCropBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -30,11 +33,18 @@ class ImageCropAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as ImageCropHolder).bind(images[position], position, listener)
+        (holder as ImageCropHolder).bind(images[position], position, isLoading, listener)
     }
 
     override fun getItemCount(): Int {
         return images.size
+    }
+
+    fun setLoading(loading: Boolean) {
+        if (this.isLoading != loading) {
+            this.isLoading = loading
+            notifyDataSetChanged()
+        }
     }
 
     fun updateItem(index: Int, uri: Uri) {
@@ -56,7 +66,7 @@ class ImageCropAdapter(
 
     class ImageCropHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = ImagepickerLayoutRecyclerviewItemCropBinding.bind(itemView)
-        fun bind(image: Uri, index: Int, listener: CropListener) {
+        fun bind(image: Uri, index: Int, isLoading: Boolean, listener: CropListener) {
 //            itemView.imgCrop.setImageUri(
 //                Uri.fromFile(File(image.path)),
 //                Uri.fromFile(File.createTempFile(img,".$ext"))
@@ -67,6 +77,13 @@ class ImageCropAdapter(
 //            Glide.with(activity)
 //                .load(imgFile)
 //                .into(binding.imgCrop)
+            if (isLoading) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.btnCrop.visibility = View.GONE
+            } else {
+                binding.progressBar.visibility = View.GONE
+                binding.btnCrop.visibility = View.VISIBLE
+            }
             binding.btnCrop.setOnClickListener {
                 listener.onClickCrop(index, image)
             }

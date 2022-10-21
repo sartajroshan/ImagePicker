@@ -8,6 +8,8 @@ import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.provider.DocumentsContractCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +17,9 @@ import com.github.drjacky.imagepicker.ImagePicker.Companion.EXTRA_IMAGES
 import com.github.drjacky.imagepicker.adapter.ImageCropAdapter
 import com.github.drjacky.imagepicker.databinding.ActivityImagePickerFinalBinding
 import com.github.drjacky.imagepicker.provider.CropProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListener {
     private var cropImageIndex: Int? = null
@@ -30,9 +35,18 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
 
     private fun onDone() {
         if (imageCropAdapter.images.size == 1) {
-            setResult(imageCropAdapter.images.single())
+            setResult(mCropProvider.convertToFileUri(imageCropAdapter.images.single()))
         } else {
-            setMultipleImageResult(imageCropAdapter.images)
+            val uris = imageCropAdapter.images.map {
+                if (DocumentsContractCompat.isDocumentUri(this, it)) {
+                    mCropProvider.convertToFileUri(it)
+                } else {
+                    it
+                }
+            }
+            val images = arrayListOf<Uri>()
+            images.addAll(uris)
+            setMultipleImageResult(images)
         }
     }
 
@@ -123,13 +137,22 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
 
     override fun onClickCrop(index: Int, image: Uri) {
         this.cropImageIndex = index
-        mCropProvider.startIntent(
-            uri = image,
-            cropOval = mCropProvider.isCropOvalEnabled(),
-            cropFreeStyle = mCropProvider.isCropFreeStyleEnabled(),
-            isCamera = intent.getBooleanExtra("isCamera", false),
-            outputFormat = mCropProvider.outputFormat()
-        )
+
+        lifecycleScope.launch {
+            withContext(Dispatchers.Main) {
+                imageCropAdapter.setLoading(true)
+            }
+            mCropProvider.startIntent(
+                uri = image,
+                cropOval = mCropProvider.isCropOvalEnabled(),
+                cropFreeStyle = mCropProvider.isCropFreeStyleEnabled(),
+                isCamera = intent.getBooleanExtra("isCamera", false),
+                outputFormat = mCropProvider.outputFormat()
+            )
+            withContext(Dispatchers.Main) {
+                imageCropAdapter.setLoading(false)
+            }
+        }
 
     }
 

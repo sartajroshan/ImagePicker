@@ -13,11 +13,16 @@ import android.os.Environment
 import androidx.activity.result.ActivityResult
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import com.github.drjacky.imagepicker.ImagePicker
 import com.github.drjacky.imagepicker.R
 import com.github.drjacky.imagepicker.util.FileUriUtils
 import com.github.drjacky.imagepicker.util.FileUtil.getCompressFormat
 import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -116,11 +121,27 @@ class CropProvider(
     @Nullable
     fun outputFormat() = outputFormat
 
+    fun convertToFileUri(uri: Uri): Uri {
+        val extension = outputFormat?.let { ".${it.name}" } ?: FileUriUtils.getImageExtension(uri)
+        val selectedBitmap: Bitmap? = getBitmap(this, uri)
+        if (selectedBitmap != null) {
+            val selectedImgFile = File(
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                System.currentTimeMillis().toString() + "_selectedImg" + extension
+            )
+
+            convertBitmapToFile(selectedImgFile, selectedBitmap, extension)
+            return selectedImgFile.toUri()
+        }
+
+        return uri
+    }
+
     /**
      * Start Crop Activity
      */
     @Throws(IOException::class)
-    fun startIntent(
+    suspend fun startIntent(
         uri: Uri,
         cropOval: Boolean,
         cropFreeStyle: Boolean,
@@ -142,7 +163,7 @@ class CropProvider(
      * @throws IOException if failed to crop image
      */
     @Throws(IOException::class)
-    private fun cropImage(
+    private suspend fun cropImage(
         uri: Uri,
         cropOval: Boolean,
         cropFreeStyle: Boolean,
@@ -161,35 +182,43 @@ class CropProvider(
         val selectedBitmap: Bitmap? = getBitmap(this, uri)
         selectedBitmap?.let {
             // We can access getExternalFilesDir() without asking any storage permission.
-            val selectedImgFile = File(
-                getExternalFilesDir(path),
-                System.currentTimeMillis().toString() + "_selectedImg" + extension
-            )
+            coroutineScope {
+                launch(Dispatchers.IO) {
+                    val selectedImgFile = File(
+                        getExternalFilesDir(path),
+                        System.currentTimeMillis().toString() + "_selectedImg" + extension
+                    )
 
-            convertBitmapToFile(selectedImgFile, it, extension)
+                    convertBitmapToFile(selectedImgFile, it, extension)
 
-            /*We have to again create a new file where we will save the cropped image. */
-            val croppedImgFile = File(
-                getExternalFilesDir(path),
-                System.currentTimeMillis().toString() + "_croppedImg" + extension
-            )
+                    /*We have to again create a new file where we will save the cropped image. */
+                    val croppedImgFile = File(
+                        getExternalFilesDir(path),
+                        System.currentTimeMillis().toString() + "_croppedImg" + extension
+                    )
 
-            val options = UCrop.Options()
-            options.setCompressionFormat(getCompressFormat(extension))
-            options.setCircleDimmedLayer(cropOval)
-            options.setFreeStyleCropEnabled(cropFreeStyle)
-            val uCrop = UCrop.of(Uri.fromFile(selectedImgFile), Uri.fromFile(croppedImgFile))
-                .withOptions(options)
+                    val options = UCrop.Options()
+                    options.setCompressionFormat(getCompressFormat(extension))
+                    options.setCircleDimmedLayer(cropOval)
+                    options.setFreeStyleCropEnabled(cropFreeStyle)
+                    val uCrop =
+                        UCrop.of(Uri.fromFile(selectedImgFile), Uri.fromFile(croppedImgFile))
+                            .withOptions(options)
 
-            if (cropAspectX > 0 && cropAspectY > 0) {
-                uCrop.withAspectRatio(cropAspectX, cropAspectY)
+                    if (cropAspectX > 0 && cropAspectY > 0) {
+                        uCrop.withAspectRatio(cropAspectX, cropAspectY)
+                    }
+
+                    if (maxWidth > 0 && maxHeight > 0) {
+                        uCrop.withMaxResultSize(maxWidth, maxHeight)
+                    }
+                    withContext(Dispatchers.Main) {
+                        launcher.invoke(uCrop.getIntent(activity))
+                    }
+                }
+
             }
 
-            if (maxWidth > 0 && maxHeight > 0) {
-                uCrop.withMaxResultSize(maxWidth, maxHeight)
-            }
-
-            launcher.invoke(uCrop.getIntent(activity))
         } ?: kotlin.run {
             setError(R.string.error_failed_to_crop_image)
         }
