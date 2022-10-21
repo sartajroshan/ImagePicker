@@ -169,7 +169,6 @@ class ImagePickerActivity : AppCompatActivity() {
      */
     @Throws(IOException::class)
     fun setImage(uri: Uri, isCamera: Boolean) {
-
         mImageUri = uri
         when {
             mCropProvider.isCropEnabled() -> {
@@ -316,6 +315,5 @@ class ImagePickerActivity : AppCompatActivity() {
         setResult(Activity.RESULT_OK, intent)
         finish()
     }
-
 
 }

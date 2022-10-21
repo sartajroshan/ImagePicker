@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.ContextWrapper
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.github.drjacky.imagepicker.ImagePickerActivity
 import com.github.drjacky.imagepicker.util.setError
 import com.github.drjacky.imagepicker.util.setResultCancel
 

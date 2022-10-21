@@ -31,7 +31,8 @@ import java.io.IOException
  * @since 04 January 2019
  */
 class CropProvider(
-    activity: AppCompatActivity, private val setCropImage: (Uri) -> Unit,
+    activity: AppCompatActivity,
+    private val setCropImage: (Uri) -> Unit,
     private val launcher: (Intent) -> Unit
 ) :
     BaseProvider<AppCompatActivity>(activity) {
@@ -41,7 +42,7 @@ class CropProvider(
         private const val STATE_CROP_URI = "state.crop_uri"
     }
 
-    //private var isMultipleFiles: Boolean = false
+    // private var isMultipleFiles: Boolean = false
     private val maxWidth: Int
     private val maxHeight: Int
 

@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import com.github.drjacky.imagepicker.R
 import com.github.drjacky.imagepicker.databinding.ImagepickerToolbarBinding
 
-
 class
 ImagePickerToolbar : RelativeLayout {
 
@@ -40,10 +39,11 @@ ImagePickerToolbar : RelativeLayout {
     private fun init(context: Context) {
         val binding = ImagepickerToolbarBinding
             .inflate(
-                LayoutInflater.from(context), this
+                LayoutInflater.from(context),
+                this
             )
 
-        //View.inflate(context, R.layout.imagepicker_toolbar, this)
+        // View.inflate(context, R.layout.imagepicker_toolbar, this)
         if (isInEditMode) {
             return
         }
@@ -56,11 +56,11 @@ ImagePickerToolbar : RelativeLayout {
     }
 
     fun config() {
-        //this.config = config
+        // this.config = config
 
         setBackgroundColor(ContextCompat.getColor(context, R.color.ucrop_color_widget_background))
 
-        //titleText!!.text = if (config.isFolderMode) config.folderTitle else config.imageTitle
+        // titleText!!.text = if (config.isFolderMode) config.folderTitle else config.imageTitle
         titleText!!.setTextColor(ContextCompat.getColor(context, R.color.ucrop_color_widget_text))
 
         doneText!!.text = resources.getString(R.string.action_done)
@@ -89,7 +89,6 @@ ImagePickerToolbar : RelativeLayout {
     fun setTitle(title: String) {
         titleText!!.text = title
     }
-
 
     fun showDoneButton(isShow: Boolean) {
         doneText!!.visibility = if (isShow) View.VISIBLE else View.GONE

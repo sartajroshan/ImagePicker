@@ -1,6 +1,5 @@
 package com.github.drjacky.imagepicker.adapter
 
-
 import android.app.Activity
 import android.net.Uri
 import android.view.LayoutInflater
@@ -9,7 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.github.drjacky.imagepicker.databinding.ImagepickerLayoutRecyclerviewItemCropBinding
-import java.io.File
 
 class ImageCropAdapter(
     val activity: Activity,
@@ -19,7 +17,8 @@ class ImageCropAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = ImagepickerLayoutRecyclerviewItemCropBinding.inflate(
             LayoutInflater.from(parent.context),
-            parent, false
+            parent,
+            false
         ).root
         return ImageCropHolder(view)
 
@@ -58,12 +57,11 @@ class ImageCropAdapter(
     class ImageCropHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = ImagepickerLayoutRecyclerviewItemCropBinding.bind(itemView)
         fun bind(image: Uri, index: Int, listener: CropListener) {
-
 //            itemView.imgCrop.setImageUri(
 //                Uri.fromFile(File(image.path)),
 //                Uri.fromFile(File.createTempFile(img,".$ext"))
 //            )
-            //val imgFile = File(image.path)
+            // val imgFile = File(image.path)
             //  itemView.imgCrop.setImageURI(Uri.fromFile(imgFile))
             binding.imgCrop.load(image)
 //            Glide.with(activity)
