@@ -27,7 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:padding="16dp"
+            android:padding="20dp"
             android:visibility="visible"
             android:background="@color/ucrop_color_widget_background"
             app:tint="@color/ucrop_color_active_controls_color" />

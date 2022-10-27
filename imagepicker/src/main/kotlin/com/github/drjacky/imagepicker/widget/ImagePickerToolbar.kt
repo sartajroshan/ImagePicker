@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
@@ -19,6 +20,7 @@ ImagePickerToolbar : RelativeLayout {
     private var selectedText: TextView? = null
     private var backImage: AppCompatImageView? = null
     private var cameraImage: AppCompatImageView? = null
+    private lateinit var progressBar: ProgressBar
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -53,6 +55,7 @@ ImagePickerToolbar : RelativeLayout {
         doneText = binding.textToolbarDone
         backImage = binding.imageToolbarBack
         cameraImage = binding.imageToolbarCamera
+        progressBar = binding.progressBar
     }
 
     fun config() {
@@ -116,6 +119,16 @@ ImagePickerToolbar : RelativeLayout {
 
     fun setOnDoneClickListener(clickListener: View.OnClickListener) {
         doneText!!.setOnClickListener(clickListener)
+    }
+
+    fun setLoading(loading: Boolean) {
+        if (loading) {
+            progressBar.visibility = View.VISIBLE
+            doneText!!.visibility = View.GONE
+        } else {
+            progressBar.visibility = View.GONE
+            doneText!!.visibility = View.VISIBLE
+        }
     }
 
 }

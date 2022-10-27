@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize">
 
     <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/image_toolbar_back"
@@ -67,5 +68,15 @@
             android:textAllCaps="true"
             android:textColor="@color/white"
             android:visibility="gone" />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="4dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:background="@color/ucrop_color_widget_background"
+        app:tint="@color/ucrop_color_active_controls_color" />
 
 </merge>

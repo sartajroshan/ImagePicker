@@ -35,20 +35,29 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
         }
 
     private fun onDone() {
-        if (imageCropAdapter.images.size == 1) {
-            setResult(mCropProvider.convertToFileUri(imageCropAdapter.images.single()))
-        } else {
-            val uris = imageCropAdapter.images.map {
-                if (DocumentsContractCompat.isDocumentUri(this, it)) {
-                    mCropProvider.convertToFileUri(it)
-                } else {
-                    it
+        binding.toolbar.setLoading(true)
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (imageCropAdapter.images.size == 1) {
+                withContext(Dispatchers.Main) {
+                    setResult(mCropProvider.convertToFileUri(imageCropAdapter.images.single()))
+                }
+
+            } else {
+                val uris = imageCropAdapter.images.map {
+                    if (DocumentsContractCompat.isDocumentUri(this@ImagePickerFinalActivity, it)) {
+                        mCropProvider.convertToFileUri(it)
+                    } else {
+                        it
+                    }
+                }
+                val images = arrayListOf<Uri>()
+                images.addAll(uris)
+                withContext(Dispatchers.Main) {
+                    setMultipleImageResult(images)
                 }
             }
-            val images = arrayListOf<Uri>()
-            images.addAll(uris)
-            setMultipleImageResult(images)
         }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,25 +92,25 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
             singleImage(it.size <= 1)
 
             binding.recyclerViewImages.addOnScrollListener(object :
-                    RecyclerView.OnScrollListener() {
-                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                        super.onScrollStateChanged(recyclerView, newState)
-                    }
+                RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                }
 
-                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        super.onScrolled(recyclerView, dx, dy)
-                        if (layoutmngr.findFirstVisibleItemPosition() == 0) {
-                            binding.previous.visibility = View.GONE
-                        } else {
-                            binding.previous.visibility = View.VISIBLE
-                        }
-                        if (layoutmngr.findLastVisibleItemPosition() == images.size - 1) {
-                            binding.next.visibility = View.GONE
-                        } else {
-                            binding.next.visibility = View.VISIBLE
-                        }
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (layoutmngr.findFirstVisibleItemPosition() == 0) {
+                        binding.previous.visibility = View.GONE
+                    } else {
+                        binding.previous.visibility = View.VISIBLE
                     }
-                })
+                    if (layoutmngr.findLastVisibleItemPosition() == images.size - 1) {
+                        binding.next.visibility = View.GONE
+                    } else {
+                        binding.next.visibility = View.VISIBLE
+                    }
+                }
+            })
 
         }
 
