@@ -38,7 +38,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/ucrop_color_widget_background"
-            android:src="@drawable/ic_baseline_crop_24"
+            android:src="@drawable/ic_baseline_edit_24"
             app:tint="@color/ucrop_color_active_controls_color" />
 
         <ImageButton

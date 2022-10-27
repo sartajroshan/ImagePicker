@@ -17,6 +17,7 @@ import com.github.drjacky.imagepicker.ImagePicker.Companion.EXTRA_IMAGES
 import com.github.drjacky.imagepicker.adapter.ImageCropAdapter
 import com.github.drjacky.imagepicker.databinding.ActivityImagePickerFinalBinding
 import com.github.drjacky.imagepicker.provider.CropProvider
+import com.github.drjacky.imagepicker.util.setResultCancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -158,6 +159,9 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
 
     override fun onClickClose(image: Uri) {
         imageCropAdapter.removeImage(image)
+        if (imageCropAdapter.images.isEmpty()) {
+            setResultCancel()
+        }
     }
 
     private fun setCropImage(uri: Uri) {
