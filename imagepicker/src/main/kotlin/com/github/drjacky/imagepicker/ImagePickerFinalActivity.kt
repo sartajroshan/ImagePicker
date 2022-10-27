@@ -39,7 +39,16 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
         lifecycleScope.launch(Dispatchers.IO) {
             if (imageCropAdapter.images.size == 1) {
                 withContext(Dispatchers.Main) {
-                    setResult(mCropProvider.convertToFileUri(imageCropAdapter.images.single()))
+                    setResult(
+                        if (DocumentsContractCompat.isDocumentUri(
+                                this@ImagePickerFinalActivity,
+                                imageCropAdapter.images.single()
+                            )
+                        )
+                            mCropProvider.convertToFileUri(imageCropAdapter.images.single())
+                        else
+                            imageCropAdapter.images.single()
+                    )
                 }
 
             } else {
