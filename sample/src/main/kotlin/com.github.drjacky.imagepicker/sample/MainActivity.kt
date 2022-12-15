@@ -3,6 +3,9 @@ package com.github.drjacky.imagepicker.sample
 import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.ContactsContract.Directory
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -21,6 +24,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_camera_only.*
 import kotlinx.android.synthetic.main.content_gallery_only.*
 import kotlinx.android.synthetic.main.content_profile.*
+import java.io.File
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,6 +42,15 @@ class MainActivity : AppCompatActivity() {
             if (it.resultCode == Activity.RESULT_OK) {
                 val uri = it.data?.data!!
                 mProfileUri = uri
+                Log.d("URI:", uri.path ?: uri.toString())
+                val isFileProviderAuth =
+                    uri.authority == "${BuildConfig.APPLICATION_ID}.imagepicker.provider"
+                var uriString = uri.path
+                if (isFileProviderAuth) {
+                    val dir = File(getExternalFilesDir(Environment.DIRECTORY_DCIM), "Camera")
+                    uriString = File(dir, uri.lastPathSegment).absolutePath
+                }
+                Log.d("finalURI:", uriString ?: "")
                 imgProfile.setLocalImage(uri, true)
             } else {
                 parseError(it)

@@ -21,6 +21,7 @@ import com.github.drjacky.imagepicker.util.setResultCancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListener {
     private var cropImageIndex: Int? = null
@@ -39,6 +40,18 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
         lifecycleScope.launch(Dispatchers.IO) {
             if (imageCropAdapter.images.size == 1) {
                 withContext(Dispatchers.Main) {
+                    Log.i(
+                        "URIINFO", "isDoc::${
+                            DocumentsContractCompat.isDocumentUri(
+                                this@ImagePickerFinalActivity,
+                                imageCropAdapter.images.single()
+                            )
+                        }::isTree::${
+                            DocumentsContractCompat.isTreeUri(
+                                imageCropAdapter.images.single()
+                            )
+                        }::abs::${imageCropAdapter.images.single().isAbsolute}"
+                    )
                     setResult(
                         if (DocumentsContractCompat.isDocumentUri(
                                 this@ImagePickerFinalActivity,
@@ -47,7 +60,15 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
                         )
                             mCropProvider.convertToFileUri(imageCropAdapter.images.single())
                         else
-                            imageCropAdapter.images.single()
+                            if (kotlin.runCatching {
+                                    File(
+                                        imageCropAdapter.images.single().path ?: ""
+                                    ).exists()
+                                }.getOrDefault(false))
+                                imageCropAdapter.images.single() else mCropProvider.convertToFileUri(
+                                imageCropAdapter.images.single()
+                            )
+
                     )
                 }
 
@@ -56,7 +77,8 @@ class ImagePickerFinalActivity : AppCompatActivity(), ImageCropAdapter.CropListe
                     if (DocumentsContractCompat.isDocumentUri(this@ImagePickerFinalActivity, it)) {
                         mCropProvider.convertToFileUri(it)
                     } else {
-                        it
+                        if (kotlin.runCatching { File(it.path ?: "").exists() }.getOrDefault(false))
+                            it else mCropProvider.convertToFileUri(it)
                     }
                 }
                 val images = arrayListOf<Uri>()

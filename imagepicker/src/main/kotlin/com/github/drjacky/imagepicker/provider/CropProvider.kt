@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
@@ -129,7 +130,7 @@ class CropProvider(
                 getExternalFilesDir(Environment.DIRECTORY_PICTURES),
                 System.currentTimeMillis().toString() + "_selectedImg" + extension
             )
-
+            Log.i("ConvertUri", selectedImgFile.path)
             convertBitmapToFile(selectedImgFile, selectedBitmap, extension)
             return selectedImgFile.toUri()
         }

@@ -23,6 +23,10 @@ import java.io.*
 
 object FileUriUtils {
 
+    private val supportedExtensions = listOf(
+        "jpg", "png", "jpeg", "gif"
+    )
+
     fun getRealPath(context: Context, uri: Uri): String? {
         var path = getPathFromLocalUri(context, uri)
         if (path == null) {
@@ -213,7 +217,7 @@ object FileUriUtils {
             extension = null
         }
 
-        if (extension == null || extension.isEmpty()) {
+        if ((extension == null) || extension.isEmpty() || !supportedExtensions.contains(extension.lowercase())) {
             // default extension for matches the previous behavior of the plugin
             extension = "jpg"
         }

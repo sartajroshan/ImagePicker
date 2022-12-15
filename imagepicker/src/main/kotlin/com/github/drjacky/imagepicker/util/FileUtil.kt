@@ -80,12 +80,11 @@ object FileUtil {
 
             val authority =
                 context.packageName + context.getString(R.string.image_picker_provider_authority_suffix)
-            val uriForFile = FileProvider.getUriForFile(
+            return FileProvider.getUriForFile(
                 context,
                 authority,
                 file
             )
-            return uriForFile
         } catch (ex: IOException) {
             ex.printStackTrace()
             return null
